@@ -50,7 +50,10 @@ void init_textarea(lv_obj_t *parent) {
 
     lv_obj_add_event_cb(ta, ta_event_cb, LV_EVENT_ALL, pinyin_ime);
 
-    // FIXME: 候选词面板没背景
+    lv_obj_t *cand_panel = lv_ime_pinyin_get_cand_panel(pinyin_ime);
+    lv_obj_set_size(cand_panel, LV_PCT(100), LV_PCT(10));
+    lv_obj_align_to(cand_panel, kb, LV_ALIGN_OUT_TOP_MID, 0, 0);
+    lv_obj_set_style_bg_opa(cand_panel, LV_OPA_100, 0);
 }
 
 void init_material_card(lv_obj_t *parent) {
@@ -74,7 +77,7 @@ void init_notification_card(lv_obj_t *parent) {
     lv_label_set_text(label, "系统通知");
     lv_obj_set_style_text_font(label, &lv_font_han_sans_20_3500, 0);
 
-    // INFO: `今日新增热点` 删了，前端逻辑不好写，后端也弄
+    // INFO: `今日新增热点` 删了，前端逻辑不好写，后端也难弄
     //
     // TODO: - WiFi 状态
     //       - 蓝牙状态
