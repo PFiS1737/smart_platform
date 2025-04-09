@@ -11,10 +11,10 @@ Then, add the following lines to your `CMakeLists.txt`:
 +set(SMART_PLATFORM_INC smart_platform/src)
 +
 +add_library(smart_platform STATIC ${SMART_PLATFORM_SRC})
-+target_include_directories(smart_platform PRIVATE ${PROJECT_SOURCE_DIR}/smart_platform)
++target_include_directories(smart_platform PUBLIC ${SMART_PLATFORM_INC})
 +
--add_executable(your_project src/main.c)
-+add_executable(your_project src/main.c ${SMART_PLATFORM_SRC})
+-target_link_libraries(your_project lvgl)
++target_link_libraries(your_project lvgl smart_platform)
 
 ```
 
