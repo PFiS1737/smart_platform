@@ -3,7 +3,7 @@
 #include "lv_font_han_sans_16_3500.c"
 
 void smart_platform(void) {
-    lv_theme_t *theme = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_RED), lv_palette_main(LV_PALETTE_RED),
+    lv_theme_t *theme = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
                                               false, &lv_font_han_sans_16_3500);
     lv_display_set_theme(NULL, theme);
 
