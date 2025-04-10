@@ -6,7 +6,7 @@ extern "C" {
  *      INCLUDES
  *********************/
 
-#include "../lvgl.h"
+#include "lvgl.h"
 
 /*********************
  *      DEFINES
@@ -20,7 +20,7 @@ extern "C" {
  * GLOBAL PROTOTYPES
  **********************/
 
-void sp_home(lv_obj_t *parent);
+void sp_write(lv_obj_t *parent);
 
 /**********************
  *      MACROS

@@ -1,6 +1,6 @@
 #include "sp_home.h"
 
-#include "lv_font_han_sans_20_3500.c"
+#include "../fonts/lv_font_han_sans_20_3500.c"
 
 static lv_style_t style_card;
 

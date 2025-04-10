@@ -7,7 +7,7 @@ Place this library in the same directory as your `lvgl` library.
 Then add the following lines to your `CMakeLists.txt`:
 
 ```diff
-+file(GLOB SMART_PLATFORM_SRC smart_platform/src/*.c)
++file(GLOB SMART_PLATFORM_SRC smart_platform/src/*.c smart_platform/src/lib/*.c)
 +set(SMART_PLATFORM_INC smart_platform/src)
 +
 +add_library(smart_platform STATIC ${SMART_PLATFORM_SRC})

@@ -6,11 +6,11 @@ extern "C" {
  *      INCLUDES
  *********************/
 
-#include "../lvgl.h"
-#include "sp_home.h"
-#include "sp_hotpoints.h"
-#include "sp_write.h"
-#include "sp_mine.h"
+#include "lvgl.h"
+#include "lib/sp_home.h"
+#include "lib/sp_hotpoints.h"
+#include "lib/sp_write.h"
+#include "lib/sp_mine.h"
 
 /*********************
  *      DEFINES
