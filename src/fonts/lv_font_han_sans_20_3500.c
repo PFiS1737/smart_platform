@@ -10,7 +10,7 @@
 // #include "lvgl/lvgl.h"
 // #endif
 
-#include "../lvgl.h" // INFO: edited
+#include "lv_font_han_sans_20_3500.h" // INFO: edited
 
 #ifndef LV_FONT_HAN_SANS_20_3500
 #define LV_FONT_HAN_SANS_20_3500 1
