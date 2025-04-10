@@ -1,18 +1,18 @@
-#include "loves.h"
+#include "favorites.h"
 
-int compare_love(const void *a, const void *b);
+int compare(const void *a, const void *b);
 
 // TODO: (backend) 这里应该是从后端获取数据
-LoveList *get_love_list() {
+FavoriteList *get_favorite_list() {
     int count = 10;
-    Love *loves = malloc(sizeof(Love) * count);
+    Favorite *favorites = malloc(sizeof(Favorite) * count);
     for(int i = 0; i < count; i++) {
-        loves[i].year = 2025;
-        loves[i].month = 4;
-        loves[i].day = i + 1;
-        loves[i].content = malloc(2000);
+        favorites[i].year = 2025;
+        favorites[i].month = 4;
+        favorites[i].day = i + 1;
+        favorites[i].content = malloc(2000);
         snprintf(
-            loves[i].content, 2000,
+            favorites[i].content, 2000,
             "This is the content of love %d: "
             "非常非常长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
             "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
@@ -27,18 +27,18 @@ LoveList *get_love_list() {
             "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长 结束",
             i + 1);
     }
-    qsort(loves, count, sizeof(Love), compare_love);
+    qsort(favorites, count, sizeof(Favorite), compare);
 
-    LoveList *list = malloc(sizeof(LoveList));
-    list->list = loves;
+    FavoriteList *list = malloc(sizeof(FavoriteList));
+    list->list = favorites;
     list->count = count;
 
     return list;
 }
 
-int compare_love(const void *a, const void *b) {
-    const Love *love_a = (const Love *)a;
-    const Love *love_b = (const Love *)b;
+int compare(const void *a, const void *b) {
+    const Favorite *love_a = (const Favorite *)a;
+    const Favorite *love_b = (const Favorite *)b;
 
     if(love_a->year != love_b->year) {
         return love_b->year - love_a->year;

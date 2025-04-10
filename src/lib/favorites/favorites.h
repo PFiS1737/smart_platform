@@ -7,12 +7,12 @@ typedef struct
     int month;
     int day;
     char *content;
-} Love;
+} Favorite;
 
 typedef struct
 {
-    Love *list;
+    Favorite *list;
     int count;
-} LoveList;
+} FavoriteList;
 
-LoveList *get_love_list();
+FavoriteList *get_favorite_list();
