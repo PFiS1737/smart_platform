@@ -63,11 +63,48 @@ void init_material_card(lv_obj_t *parent) {
     lv_obj_add_style(material, &style_card, 0);
     lv_obj_set_size(material, LV_PCT(100), LV_SIZE_CONTENT);
 
-    lv_obj_t *label = lv_label_create(material);
-    lv_label_set_text(label, "作文素材");
-    lv_obj_set_style_text_font(label, &lv_font_han_sans_20_3500, 0);
+    lv_obj_set_layout(material, LV_LAYOUT_FLEX);
+    lv_obj_set_flex_flow(material, LV_FLEX_FLOW_COLUMN);
 
-    // TODO:  下面是轮换播放 3 条收藏的作文素材
+    lv_obj_t *title = lv_label_create(material);
+    lv_label_set_text(title, "素材收藏 (最新三条)");
+    lv_obj_set_style_text_font(title, &lv_font_han_sans_20_3500, 0);
+
+    // INFO: 轮播删了，不好做，而且必要性不大
+
+    lv_obj_t *menu = lv_menu_create(material);
+    lv_obj_set_size(menu, LV_PCT(100), 200);
+
+    lv_obj_t *back_btn = lv_menu_get_main_header_back_button(menu);
+    lv_obj_t *back_button_label = lv_label_create(back_btn);
+    lv_label_set_text(back_button_label, "    返回"); // left padding
+
+    lv_obj_t *menu_main_page = lv_menu_page_create(menu, NULL);
+
+    int count;
+    Love *love_list = get_love_list(&count);
+    for(int i = 0; i < (count > 3 ? 3 : count); i++) {
+        char *content = love_list[i].content;
+        char *substr = malloc(200);
+        lv_strncpy(substr, content, 199);
+
+        lv_obj_t *content_page = lv_menu_page_create(menu, NULL);
+
+        lv_obj_t *cont = lv_menu_cont_create(content_page);
+        lv_obj_t *label = lv_label_create(cont);
+        lv_label_set_text(label, content);
+        lv_obj_set_size(label, LV_PCT(100), LV_SIZE_CONTENT);
+
+        cont = lv_menu_cont_create(menu_main_page);
+        label = lv_label_create(cont);
+        lv_label_set_text_fmt(label, "%d. (%04d-%02d-%02d) %s...", i + 1, love_list[i].year, love_list[i].month,
+                              love_list[i].day, substr);
+        lv_obj_set_size(label, LV_PCT(100), LV_SIZE_CONTENT);
+
+        lv_menu_set_load_page_event(menu, cont, content_page);
+    }
+
+    lv_menu_set_page(menu, menu_main_page);
 }
 
 void init_notification_card(lv_obj_t *parent) {
@@ -75,9 +112,9 @@ void init_notification_card(lv_obj_t *parent) {
     lv_obj_add_style(notification, &style_card, 0);
     lv_obj_set_size(notification, LV_PCT(100), LV_SIZE_CONTENT);
 
-    lv_obj_t *label = lv_label_create(notification);
-    lv_label_set_text(label, "系统通知");
-    lv_obj_set_style_text_font(label, &lv_font_han_sans_20_3500, 0);
+    lv_obj_t *title = lv_label_create(notification);
+    lv_label_set_text(title, "系统通知");
+    lv_obj_set_style_text_font(title, &lv_font_han_sans_20_3500, 0);
 
     // INFO: `今日新增热点` 删了，前端逻辑不好写，后端也难弄
     //
@@ -93,9 +130,9 @@ void init_hotpoints_card(lv_obj_t *parent) {
     lv_obj_add_style(hotpoints, &style_card, 0);
     lv_obj_set_size(hotpoints, LV_PCT(100), LV_SIZE_CONTENT);
 
-    lv_obj_t *label = lv_label_create(hotpoints);
-    lv_label_set_text(label, "热点卡片");
-    lv_obj_set_style_text_font(label, &lv_font_han_sans_20_3500, 0);
+    lv_obj_t *title = lv_label_create(hotpoints);
+    lv_label_set_text(title, "热点卡片");
+    lv_obj_set_style_text_font(title, &lv_font_han_sans_20_3500, 0);
 
     // TODO: - 一个最新讨论，这个可以再嵌套一个带高亮色的卡片
     //       - 几条热点
