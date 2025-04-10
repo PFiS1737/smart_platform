@@ -8,13 +8,13 @@ void smart_platform(void) {
     lv_obj_t *tabview = lv_tabview_create(lv_screen_active());
     lv_tabview_set_tab_bar_position(tabview, LV_DIR_BOTTOM);
 
-    lv_obj_t *tab1_home = lv_tabview_add_tab(tabview, "首页");
-    lv_obj_t *tab2_hotpoints = lv_tabview_add_tab(tabview, "热点");
+    lv_obj_t *tab1_hotpoints = lv_tabview_add_tab(tabview, "热点");
+    lv_obj_t *tab2_favorites = lv_tabview_add_tab(tabview, "收藏");
     lv_obj_t *tab3_write = lv_tabview_add_tab(tabview, "作文");
     lv_obj_t *tab4_mine = lv_tabview_add_tab(tabview, "我的");
 
-    sp_home(tab1_home);
-    sp_hotpoints(tab2_hotpoints);
+    sp_favorites(tab2_favorites);
+    sp_hotpoints(tab1_hotpoints);
     sp_write(tab3_write);
     sp_mine(tab4_mine);
 }

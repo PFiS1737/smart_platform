@@ -9,4 +9,10 @@ typedef struct
     char *content;
 } Love;
 
-Love *get_love_list(int *count);
+typedef struct
+{
+    Love *list;
+    int count;
+} LoveList;
+
+LoveList *get_love_list();
