@@ -16,7 +16,7 @@ void sp_hotpoints(lv_obj_t *parent) {
         lv_obj_set_size(label, LV_PCT(100), LV_SIZE_CONTENT);
         lv_obj_set_style_text_font(label, &lv_font_han_sans_20_3500, 0);
 
-        lv_obj_t *content_page = lv_menu_page_create(menu, "人工智能伦理 ★★★☆☆"); // FIXME: 缺字体
+        lv_obj_t *content_page = lv_menu_page_create(menu, "人工智能伦理 ★★★☆☆");
         init_hotpoint_detail(content_page);
 
         lv_menu_set_load_page_event(menu, cont, content_page);
