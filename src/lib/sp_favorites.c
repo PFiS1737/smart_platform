@@ -10,11 +10,11 @@ void sp_favorites(lv_obj_t *parent) {
 
     lv_obj_t *menu_main_page = lv_menu_page_create(menu, NULL);
 
-    FavoriteList *favorite_list = get_favorite_list();
+    FavoriteList *favorite_list = get_favorite_list(); // TODO:
     for(int i = 0; i < favorite_list->count; i++) {
         Favorite item = favorite_list->list[i];
         char *content = item.content;
-        char *substr = malloc(300);
+        char *substr = lv_malloc(300);
         lv_strncpy(substr, content, 299);
 
         lv_obj_t *content_page = lv_menu_page_create(menu, NULL);
