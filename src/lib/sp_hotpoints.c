@@ -1,4 +1,5 @@
 #include "sp_hotpoints.h"
+#include "core/lv_obj_pos.h"
 
 void init_hotpoint_detail(lv_obj_t *parent);
 
@@ -26,17 +27,17 @@ void sp_hotpoints(lv_obj_t *parent) {
 }
 
 void init_detail_analysis(lv_obj_t *parent);
-void init_detail_timeline(lv_obj_t *parent);
+void init_detail_content(lv_obj_t *parent);
 void init_hotpoint_detail(lv_obj_t *parent) {
     lv_obj_t *tabview = lv_tabview_create(parent, LV_DIR_LEFT, 80);
 
     init_detail_analysis(lv_tabview_add_tab(tabview, "分析"));
-    init_detail_timeline(lv_tabview_add_tab(tabview, "背景"));
+    init_detail_content(lv_tabview_add_tab(tabview, "背景"));
 }
 
 static void draw_event_cb(lv_event_t *e);
 void init_detail_analysis(lv_obj_t *parent) {
-    lv_obj_t *wrapper = lv_obj_create(parent); // TODO: 拿到机器后还要进一步测试修改
+    lv_obj_t *wrapper = lv_obj_create(parent);
     lv_obj_set_size(wrapper, LV_PCT(100), LV_PCT(100));
     lv_obj_set_layout(wrapper, LV_LAYOUT_FLEX);
     lv_obj_set_flex_flow(wrapper, LV_FLEX_FLOW_COLUMN);
@@ -45,15 +46,13 @@ void init_detail_analysis(lv_obj_t *parent) {
     lv_label_set_text(label, "热度趋势 (近 7 天)");
 
     lv_obj_t *chart = lv_chart_create(wrapper);
-    lv_obj_set_width(chart, LV_PCT(100));
-    lv_obj_set_flex_grow(chart, 1);
+    lv_obj_set_size(chart, LV_PCT(100), 200);
     lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
     lv_chart_set_point_count(chart, 7);
     lv_chart_set_div_line_count(chart, 5, 7);
 
-    // TODO:
-    // lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 5, 5, 7, 1, true, 30);
-    // lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 10, 5, 6, 5, true, 50);
+    lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_X, 5, 5, 7, 1, true, 30);
+    // lv_chart_set_axis_tick(chart, LV_CHART_AXIS_PRIMARY_Y, 20, 4, 5, 5, true, 50);
 
     lv_obj_add_event_cb(chart, draw_event_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
 
@@ -64,38 +63,27 @@ void init_detail_analysis(lv_obj_t *parent) {
     }
 }
 
-void init_detail_timeline(lv_obj_t *parent) {
-    lv_obj_t *menu = lv_menu_create(parent);
-    lv_obj_set_size(menu, LV_PCT(100), LV_PCT(100));
-
-    lv_obj_t *menu_main_page = lv_menu_page_create(menu, NULL);
-
-    char *demos[] = {
-        "事件11 这些是临时占位文本",
-        "事件10 仅提供演示",
-        "事件9 注意要考虑到文本很长",
-        "事件8 比如这"
-        "样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样"
-        "样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样"
-        "样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样"
-        "样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样"
-        "样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样"
-        "样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样样",
-        "事件7 或非常短 比如",
-        "6",
-        "事件5 test",
-        "事件4 test test",
-        "事件3 test test test",
-        "事件2 test test test test",
-        "事件1 test test test test test"};
-
-    for(int i = 0; i < sizeof(demos) / sizeof(demos[0]); i++) {
-        lv_obj_t *label = lv_label_create(lv_menu_cont_create(menu_main_page));
-        lv_obj_set_size(label, LV_PCT(100), LV_SIZE_CONTENT);
-        lv_label_set_text(label, demos[i]);
-    }
-
-    lv_menu_set_page(menu, menu_main_page);
+void init_detail_content(lv_obj_t *parent) {
+    lv_obj_t *label = lv_label_create(parent);
+    lv_obj_set_size(label, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_label_set_text(
+        label,
+        "非常长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
+        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长的测试文本");
 }
 
 static void draw_event_cb(lv_event_t *e) {
