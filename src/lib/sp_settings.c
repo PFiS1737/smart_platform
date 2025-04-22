@@ -83,7 +83,16 @@ static void ta_event_cb(lv_event_t *e) {
         ESP_LOGI("wifi", "GET: ssid: %s", ssid);
         ESP_LOGI("wifi", "GET: password: %s", password);
 
-        connect_to_wifi(ssid, password);
+        if(connect_to_wifi(ssid, password)) {
+            lv_obj_t *mbox = lv_msgbox_create(NULL, "", "连接成功", NULL, true);
+            lv_obj_set_style_text_font(mbox, &lv_font_han_sans_20_3500, 0);
+            lv_label_set_text_fmt(wifi_status_label, "WiFi 连接成功: %s", ssid);
+            lv_obj_center(mbox);
+        } else {
+            lv_obj_t *mbox = lv_msgbox_create(NULL, "", "连接失败", NULL, true);
+            lv_obj_set_style_text_font(mbox, &lv_font_han_sans_20_3500, 0);
+            lv_obj_center(mbox);
+        }
 
         lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
     }
