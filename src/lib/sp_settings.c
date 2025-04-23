@@ -30,32 +30,50 @@ static lv_obj_t *ssid_btn_pool[10];
 static lv_obj_t *ssid_label_pool[10];
 static const char *ssid_list[10];
 
+void get_wifi_btn_cb(lv_event_t *e);
 void wifi_btn_cb(lv_event_t *e);
 void init_wifi_page(lv_obj_t *parent) {
     lv_obj_set_layout(parent, LV_LAYOUT_FLEX);
     lv_obj_set_flex_flow(parent, LV_FLEX_FLOW_COLUMN);
 
+    lv_obj_t *btn = lv_btn_create(parent);
+    lv_obj_set_size(btn, LV_PCT(50), LV_SIZE_CONTENT);
+    lv_obj_set_align(btn, LV_ALIGN_CENTER);
+    lv_obj_t *label = lv_label_create(btn);
+    lv_label_set_text(label, "点击扫描");
+    lv_obj_add_event_cb(btn, get_wifi_btn_cb, LV_EVENT_CLICKED, parent);
+}
+
+void get_wifi_btn_cb(lv_event_t *e) {
+    lv_obj_t *btn = lv_event_get_target(e);
+    lv_obj_t *parent = lv_event_get_user_data(e);
+
+    lv_obj_t *btn_label = lv_obj_get_child(btn, 0);
+    lv_label_set_text(btn_label, "点击刷新");
+
     uint16_t ap_num = 0;
-    wifi_ap_record_t *wifi_list = get_wifi_list(&ap_num);
+    wifi_ap_record_t *wifi_list = get_wifi_list(&ap_num); // 会造成主进程卡住
 
     if(!wifi_list)
         return;
 
     for(int i = 0; i < (ap_num > 10 ? 10 : ap_num); i++) {
-        ssid_btn_pool[i] = lv_btn_create(parent);
-        lv_obj_set_size(ssid_btn_pool[i], LV_PCT(100), LV_SIZE_CONTENT);
-        ssid_label_pool[i] = lv_label_create(ssid_btn_pool[i]);
-        lv_obj_set_size(ssid_label_pool[i], LV_PCT(100), LV_SIZE_CONTENT);
+        if(ssid_btn_pool[i] == NULL) {
+            ssid_btn_pool[i] = lv_btn_create(parent);
+            lv_obj_set_size(ssid_btn_pool[i], LV_PCT(100), LV_SIZE_CONTENT);
+            ssid_label_pool[i] = lv_label_create(ssid_btn_pool[i]);
+            lv_obj_set_size(ssid_label_pool[i], LV_PCT(100), LV_SIZE_CONTENT);
+            lv_obj_set_style_text_font(ssid_label_pool[i], &lv_font_han_sans_20_3500, 0);
+        }
 
         const char *ssid = (const char *)wifi_list[i].ssid;
         ESP_LOGI("wifi", "wifi_list[%d].ssid: %s", i, ssid);
 
         lv_label_set_text(ssid_label_pool[i], ssid);
-        lv_obj_set_style_text_font(ssid_label_pool[i], &lv_font_han_sans_20_3500, 0);
 
         ssid_list[i] = ssid;
 
-        lv_obj_add_event_cb(ssid_btn_pool[i], wifi_btn_cb, LV_EVENT_CLICKED, &i);
+        lv_obj_add_event_cb(ssid_btn_pool[i], wifi_btn_cb, LV_EVENT_CLICKED, (void *)i);
     }
 }
 
@@ -70,6 +88,8 @@ static void ta_event_cb(lv_event_t *e) {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *ta = lv_event_get_target(e);
 
+    int i = (int)lv_event_get_user_data(e);
+
     if(code == LV_EVENT_FOCUSED) {
         lv_keyboard_set_textarea(kb, ta);
         lv_obj_clear_flag(kb, LV_OBJ_FLAG_HIDDEN);
@@ -77,11 +97,11 @@ static void ta_event_cb(lv_event_t *e) {
         lv_keyboard_set_textarea(kb, NULL);
         lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
     } else if(code == LV_EVENT_READY) {
-        const char *ssid = ssid_list[*(int *)e->user_data];
+        const char *ssid = ssid_list[i];
         const char *password = lv_textarea_get_text(ta);
 
-        ESP_LOGI("wifi", "GET: ssid: %s", ssid);
-        ESP_LOGI("wifi", "GET: password: %s", password);
+        ESP_LOGI("wifi", "GET(2): ssid: %s", ssid);
+        ESP_LOGI("wifi", "GET(2): password: %s", password);
 
         if(connect_to_wifi(ssid, password)) {
             lv_obj_t *mbox = lv_msgbox_create(NULL, "", "连接成功", NULL, true);
@@ -99,6 +119,8 @@ static void ta_event_cb(lv_event_t *e) {
 }
 
 void wifi_btn_cb(lv_event_t *e) {
+    int i = (int)lv_event_get_user_data(e);
+
     lv_obj_t *win = lv_win_create(lv_scr_act(), 60);
     lv_win_add_title(win, "请输入密码");
     lv_obj_set_style_text_font(win, &lv_font_han_sans_20_3500, 0);
@@ -114,7 +136,7 @@ void wifi_btn_cb(lv_event_t *e) {
     lv_obj_t *ta = lv_textarea_create(cont);
     lv_textarea_set_one_line(ta, true);
     lv_obj_set_size(ta, LV_PCT(100), 150);
-    lv_obj_add_event_cb(ta, ta_event_cb, LV_EVENT_ALL, (int *)e->user_data);
+    lv_obj_add_event_cb(ta, ta_event_cb, LV_EVENT_ALL, (void *)i);
 
     lv_keyboard_set_textarea(kb, ta);
 }
