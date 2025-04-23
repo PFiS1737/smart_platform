@@ -1,24 +1,60 @@
 #include "sp_hotpoints.h"
-#include "core/lv_obj_pos.h"
+#include "extra/widgets/tabview/lv_tabview.h"
 
-void init_hotpoint_detail(lv_obj_t *parent);
+extern lv_obj_t *tabview;
 
+static HotpointList *hotpoint_list;
+static lv_obj_t *init_label;
+
+void init_hotpoint_detail(lv_obj_t *parent, int idx);
+static void init_btn_cb(lv_event_t *e);
 void sp_hotpoints(lv_obj_t *parent) {
+
+    lv_obj_t *btn = lv_btn_create(parent);
+    lv_obj_center(btn);
+    init_label = lv_label_create(btn);
+    lv_label_set_text(init_label, "点击获取热点\n（会由于网络请求出现卡顿）");
+    lv_obj_add_event_cb(btn, init_btn_cb, LV_EVENT_CLICKED, parent);
+}
+
+static void init_btn_cb(lv_event_t *e) {
+    lv_obj_t *btn = lv_event_get_target(e);
+    lv_obj_t *parent = lv_event_get_user_data(e);
+
+    // FIXME: 后面 sleep 直接卡住，这里根本不显示
+    //        我估计是单线程的原因，如果是真的进行网络请求，估计也会这样
+    lv_label_set_text(init_label, "正在获取热点...");
+
+    sleep(5);
+
+    lv_obj_del(btn);
+
     lv_obj_t *menu = lv_menu_create(parent);
     lv_obj_set_size(menu, LV_PCT(100), LV_PCT(100));
 
     lv_obj_t *menu_main_page = lv_menu_page_create(menu, NULL);
 
-    // TODO: (api) 等后端接口确认后动态生成
-    for(int i = 0; i < 1; i++) {
+    hotpoint_list = get_hotpoint_list();
+    for(int i = 0; i < hotpoint_list->count; i++) {
         lv_obj_t *cont = lv_menu_cont_create(menu_main_page);
         lv_obj_t *label = lv_label_create(cont);
-        lv_label_set_text(label, "1. 人工智能伦理 ★★★☆☆");
+
+        char *title = malloc(150);
+        strcpy(title, hotpoint_list->list[i].title);
+        strcat(title, "  ");
+        for(int j = 0; j < hotpoint_list->list[i].stars; j++) {
+            strcat(title, "★");
+        }
+        for(int j = hotpoint_list->list[i].stars; j < 5; j++) {
+            strcat(title, "☆");
+        }
+
+        lv_label_set_text_fmt(label, "%d. %s", i + 1, title);
         lv_obj_set_size(label, LV_PCT(100), LV_SIZE_CONTENT);
         lv_obj_set_style_text_font(label, &lv_font_han_sans_20_3500, 0);
 
-        lv_obj_t *content_page = lv_menu_page_create(menu, "人工智能伦理 ★★★☆☆");
-        init_hotpoint_detail(content_page);
+        lv_obj_t *content_page = lv_menu_page_create(menu, title);
+        init_hotpoint_detail(content_page, i);
 
         lv_menu_set_load_page_event(menu, cont, content_page);
     }
@@ -26,17 +62,17 @@ void sp_hotpoints(lv_obj_t *parent) {
     lv_menu_set_page(menu, menu_main_page);
 }
 
-void init_detail_analysis(lv_obj_t *parent);
-void init_detail_content(lv_obj_t *parent);
-void init_hotpoint_detail(lv_obj_t *parent) {
+void init_detail_analysis(lv_obj_t *parent, int idx);
+void init_detail_content(lv_obj_t *parent, int idx);
+void init_hotpoint_detail(lv_obj_t *parent, int idx) {
     lv_obj_t *tabview = lv_tabview_create(parent, LV_DIR_LEFT, 80);
 
-    init_detail_analysis(lv_tabview_add_tab(tabview, "分析"));
-    init_detail_content(lv_tabview_add_tab(tabview, "背景"));
+    init_detail_analysis(lv_tabview_add_tab(tabview, "分析"), idx);
+    init_detail_content(lv_tabview_add_tab(tabview, "内容"), idx);
 }
 
 static void draw_event_cb(lv_event_t *e);
-void init_detail_analysis(lv_obj_t *parent) {
+void init_detail_analysis(lv_obj_t *parent, int idx) {
     lv_obj_t *wrapper = lv_obj_create(parent);
     lv_obj_set_size(wrapper, LV_PCT(100), LV_PCT(100));
     lv_obj_set_layout(wrapper, LV_LAYOUT_FLEX);
@@ -59,31 +95,27 @@ void init_detail_analysis(lv_obj_t *parent) {
     lv_chart_series_t *ser = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_GREEN), LV_CHART_AXIS_PRIMARY_Y);
 
     for(uint32_t i = 0; i < 7; i++) {
-        lv_chart_set_next_value(chart, ser, (int32_t)lv_rand(10, 90));
+        lv_chart_set_next_value(chart, ser, idx == 0 ? (int32_t)lv_rand(75, 95) : (int32_t)lv_rand(60, 85));
     }
 }
 
-void init_detail_content(lv_obj_t *parent) {
+static void goto_writing_cb(lv_event_t *e);
+void init_detail_content(lv_obj_t *parent, int idx) {
+    lv_obj_set_layout(parent, LV_LAYOUT_FLEX);
+    lv_obj_set_flex_flow(parent, LV_FLEX_FLOW_COLUMN);
+
     lv_obj_t *label = lv_label_create(parent);
     lv_obj_set_size(label, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_label_set_text(
-        label,
-        "非常长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长"
-        "长长长长长长长长长长长长长长长长长长长长长长长长长长长长长的测试文本");
+    char *text = (char *)malloc(2000);
+    strcpy(text, "        ");
+    strcat(text, hotpoint_list->list[idx].content);
+    lv_label_set_text(label, text);
+
+    lv_obj_t *btn = lv_btn_create(parent);
+    lv_obj_set_size(btn, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_t *btn_label = lv_label_create(btn);
+    lv_label_set_text(btn_label, "生成作文");
+    lv_obj_add_event_cb(btn, goto_writing_cb, LV_EVENT_CLICKED, NULL);
 }
 
 static void draw_event_cb(lv_event_t *e) {
@@ -95,4 +127,8 @@ static void draw_event_cb(lv_event_t *e) {
         const char *src[] = {"1", "2", "3", "4", "5", "6", "7 (今天)"};
         lv_snprintf(dsc->text, dsc->text_length, "%s", src[dsc->value]);
     }
+}
+
+static void goto_writing_cb(lv_event_t *e) {
+    lv_tabview_set_act(tabview, 1, LV_ANIM_ON);
 }

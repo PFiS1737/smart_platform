@@ -1,11 +1,13 @@
 #include "smart_platform.h"
 
+lv_obj_t *tabview;
+
 void smart_platform(void) {
     lv_theme_t *theme = lv_theme_default_init(NULL, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
                                               false, &lv_font_han_sans_16_3500);
     lv_disp_set_theme(lv_disp_get_default(), theme);
 
-    lv_obj_t *tabview = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, 50);
+    tabview = lv_tabview_create(lv_scr_act(), LV_DIR_BOTTOM, 50);
     lv_obj_set_style_text_font(tabview, &lv_font_han_sans_16_3500, 0);
 
     lv_obj_t *tab1_hotpoints = lv_tabview_add_tab(tabview, "热点");

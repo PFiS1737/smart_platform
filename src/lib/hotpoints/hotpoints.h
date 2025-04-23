@@ -1,33 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// TODO: (api) 等后端接口确认后再设计数据格式
-typedef struct Timeline
-{
-    int year;
-    int month;
-    int day;
-    int hour;
-
-    char *content;
-} Timeline;
-
-typedef struct TimelineList
-{
-    Timeline *list;
-    int count;
-} TimelineList;
-
-typedef struct AnalysisPoint
-{
-    int percentage;
-
-} AnalysisPoint;
+#include "lvgl.h"
 
 typedef struct Analysis
 {
-    AnalysisPoint *list;
-    int count;
+    int percentage;
 } Analysis;
 
 typedef struct
@@ -39,9 +17,9 @@ typedef struct
     int stars; // max: 5
 
     char *title;
+    char *content;
 
-    Analysis *analysis;
-    TimelineList *timeline;
+    Analysis *analysis[7];
 } Hotpoint;
 
 typedef struct
