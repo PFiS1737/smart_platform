@@ -28,4 +28,4 @@ typedef struct
     int count;
 } HotpointList;
 
-HotpointList *get_hotpoint_list();
+HotpointList *get_hotpoint_list(void);
