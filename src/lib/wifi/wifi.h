@@ -1,3 +1,5 @@
+#pragma once
+
 #include "esp_wifi.h"
 #include "lvgl_wifi_connect.h"
 
