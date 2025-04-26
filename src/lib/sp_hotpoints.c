@@ -1,34 +1,38 @@
 #include "sp_hotpoints.h"
+#include "core/lv_obj.h"
+#include "misc/lv_timer.h"
 
 extern lv_obj_t *tabview;
 
 static HotpointList *hotpoint_list;
-static lv_obj_t *init_label;
 
-void init_hotpoint_detail(lv_obj_t *parent, int idx);
+lv_obj_t *init_btn;
+
+static void init_hotpoint_detail(lv_obj_t *parent, int idx);
 static void init_btn_cb(lv_event_t *e);
 void sp_hotpoints(lv_obj_t *parent) {
 
-    lv_obj_t *btn = lv_btn_create(parent);
-    lv_obj_center(btn);
-    init_label = lv_label_create(btn);
-    lv_label_set_text(init_label, "点击获取热点\n（会由于网络请求出现卡顿）");
-    lv_obj_add_event_cb(btn, init_btn_cb, LV_EVENT_CLICKED, parent);
+    init_btn = lv_btn_create(parent);
+    lv_obj_center(init_btn);
+    lv_obj_t *label = lv_label_create(init_btn);
+    lv_label_set_text(label, "点击获取热点");
+    lv_obj_add_event_cb(init_btn, init_btn_cb, LV_EVENT_CLICKED, parent);
 }
 
+static void init_btn_timer_cb(lv_timer_t *timer);
 static void init_btn_cb(lv_event_t *e) {
-    lv_obj_t *btn = lv_event_get_target(e);
     lv_obj_t *parent = lv_event_get_user_data(e);
 
-    // FIXME: 后面 sleep 直接卡住，这里根本不显示
-    //        我估计是单线程的原因，如果是真的进行网络请求，估计也会这样
-    lv_label_set_text(init_label, "正在获取热点...");
+    lv_obj_t *btn_label = lv_obj_get_child(init_btn, 0);
+    lv_label_set_text(btn_label, "等待服务器响应...");
 
-    sleep(5); // TODO: use lv_timer
+    lv_timer_create(init_btn_timer_cb, 5000, parent);
+}
 
-    lv_obj_del(btn);
+static void init_btn_timer_cb(lv_timer_t *timer) {
+    lv_obj_del(init_btn);
 
-    lv_obj_t *menu = lv_menu_create(parent);
+    lv_obj_t *menu = lv_menu_create((lv_obj_t *)timer->user_data);
     lv_obj_set_size(menu, LV_PCT(100), LV_PCT(100));
 
     lv_obj_t *menu_main_page = lv_menu_page_create(menu, NULL);
@@ -59,6 +63,8 @@ static void init_btn_cb(lv_event_t *e) {
     }
 
     lv_menu_set_page(menu, menu_main_page);
+
+    lv_timer_del(timer);
 }
 
 void init_detail_analysis(lv_obj_t *parent, int idx);

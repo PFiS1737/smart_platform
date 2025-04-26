@@ -29,37 +29,41 @@ void sp_settings(lv_obj_t *parent) {
 static lv_obj_t *ssid_btn_pool[10];
 static lv_obj_t *ssid_label_pool[10];
 static const char *ssid_list[10];
-
+lv_obj_t *wifi_scan_btn;
 void get_wifi_btn_cb(lv_event_t *e);
 void wifi_btn_cb(lv_event_t *e);
 void init_wifi_page(lv_obj_t *parent) {
     lv_obj_set_layout(parent, LV_LAYOUT_FLEX);
     lv_obj_set_flex_flow(parent, LV_FLEX_FLOW_COLUMN);
 
-    lv_obj_t *btn = lv_btn_create(parent);
-    lv_obj_set_size(btn, LV_PCT(50), LV_SIZE_CONTENT);
-    lv_obj_set_align(btn, LV_ALIGN_CENTER);
-    lv_obj_t *label = lv_label_create(btn);
+    wifi_scan_btn = lv_btn_create(parent);
+    lv_obj_set_size(wifi_scan_btn, LV_PCT(50), LV_SIZE_CONTENT);
+    lv_obj_set_align(wifi_scan_btn, LV_ALIGN_CENTER);
+    lv_obj_t *label = lv_label_create(wifi_scan_btn);
     lv_label_set_text(label, "点击扫描");
-    lv_obj_add_event_cb(btn, get_wifi_btn_cb, LV_EVENT_CLICKED, parent);
+    lv_obj_add_event_cb(wifi_scan_btn, get_wifi_btn_cb, LV_EVENT_CLICKED, parent);
 }
 
+void get_wifi_timer_cb(lv_timer_t *t);
 void get_wifi_btn_cb(lv_event_t *e) {
-    lv_obj_t *btn = lv_event_get_target(e);
     lv_obj_t *parent = lv_event_get_user_data(e);
 
-    lv_obj_t *btn_label = lv_obj_get_child(btn, 0);
-    lv_label_set_text(btn_label, "点击刷新");
+    lv_obj_t *btn_label = lv_obj_get_child(wifi_scan_btn, 0);
+    lv_label_set_text(btn_label, "正在搜索...");
 
+    lv_timer_create(get_wifi_timer_cb, 10, parent);
+}
+
+void get_wifi_timer_cb(lv_timer_t *timer) {
     uint16_t ap_num = 0;
-    wifi_ap_record_t *wifi_list = get_wifi_list(&ap_num); // 会造成主进程卡住
+    wifi_ap_record_t *wifi_list = get_wifi_list(&ap_num);
 
     if(!wifi_list)
         return;
 
     for(int i = 0; i < (ap_num > 10 ? 10 : ap_num); i++) {
         if(ssid_btn_pool[i] == NULL) {
-            ssid_btn_pool[i] = lv_btn_create(parent);
+            ssid_btn_pool[i] = lv_btn_create((lv_obj_t *)timer->user_data);
             lv_obj_set_size(ssid_btn_pool[i], LV_PCT(100), LV_SIZE_CONTENT);
             ssid_label_pool[i] = lv_label_create(ssid_btn_pool[i]);
             lv_obj_set_size(ssid_label_pool[i], LV_PCT(100), LV_SIZE_CONTENT);
@@ -75,6 +79,11 @@ void get_wifi_btn_cb(lv_event_t *e) {
 
         lv_obj_add_event_cb(ssid_btn_pool[i], wifi_btn_cb, LV_EVENT_CLICKED, (void *)i);
     }
+
+    lv_obj_t *btn_label = lv_obj_get_child(wifi_scan_btn, 0);
+    lv_label_set_text(btn_label, "刷新");
+
+    lv_timer_del(timer);
 }
 
 static void wifi_cancel_cb(lv_event_t *e) {

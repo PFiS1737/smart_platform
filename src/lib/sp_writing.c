@@ -1,7 +1,9 @@
 #include "sp_writing.h"
+#include "misc/lv_timer.h"
 
 extern lv_obj_t *tabview;
 
+lv_obj_t *begin_btn = NULL;
 lv_obj_t *title = NULL;
 lv_obj_t *content = NULL;
 lv_obj_t *footer = NULL;
@@ -20,11 +22,10 @@ void sp_writing(lv_obj_t *parent) {
     lv_obj_set_size(sp, LV_PCT(100), 1);
     lv_obj_set_style_bg_color(sp, lv_color_black(), 0);
 
-    lv_obj_t *btn = lv_btn_create(parent);
-    lv_obj_center(btn);
-    lv_obj_t *btn_label = lv_label_create(btn);
-    lv_label_set_text(btn_label, "开始写作\n(会由于网络请求出现卡顿)");
-    lv_obj_add_event_cb(btn, begin_writing_cb, LV_EVENT_CLICKED, parent);
+    begin_btn = lv_btn_create(parent);
+    lv_obj_t *btn_label = lv_label_create(begin_btn);
+    lv_label_set_text(btn_label, "开始写作");
+    lv_obj_add_event_cb(begin_btn, begin_writing_cb, LV_EVENT_CLICKED, parent);
 }
 
 static const char *res1;
@@ -41,16 +42,12 @@ static void rewrite_btn_cb_1(lv_event_t *e);
 static void rewrite_btn_cb_2(lv_event_t *e);
 static void rewrite_btn_cb_3(lv_event_t *e);
 
-static void begin_writing_cb(lv_event_t *e) {
-    sleep(5); // TODO: use lv_timer
-
-    lv_obj_t *parent = lv_event_get_user_data(e);
-    lv_obj_t *btn = lv_event_get_target(e);
-
-    lv_obj_del(btn);
+static void begin_writing_timer_cb(lv_timer_t *timer) {
+    lv_obj_del(begin_btn);
 
     lv_label_set_text(title, "正在写作：论国际合作与多边关系的重要性...");
 
+    lv_obj_t *parent = timer->user_data;
     content = lv_label_create(parent);
     lv_obj_set_size(content, LV_PCT(100), LV_SIZE_CONTENT);
     lv_label_set_text(content, "");
@@ -61,6 +58,15 @@ static void begin_writing_cb(lv_event_t *e) {
     ctx->rewrite_btn_cb = rewrite_btn_cb_1;
 
     type_write_to_label(content, res1, writer_done_cb, ctx);
+
+    lv_timer_del(timer);
+}
+
+static void begin_writing_cb(lv_event_t *e) {
+    lv_obj_t *btn_label = lv_obj_get_child(begin_btn, 0);
+    lv_label_set_text(btn_label, "等待服务器响应...");
+
+    lv_timer_create(begin_writing_timer_cb, 10000, e->user_data);
 }
 
 static void add_footer(lv_obj_t *parent, lv_event_cb_t rewrite_btn_cb);
@@ -85,6 +91,8 @@ static void add_footer(lv_obj_t *parent, lv_event_cb_t rewrite_btn_cb) {
         lv_obj_clear_flag(footer, LV_OBJ_FLAG_HIDDEN);
         lv_obj_remove_event_cb(rewrite_btn, NULL);
         lv_obj_add_event_cb(rewrite_btn, rewrite_btn_cb, LV_EVENT_CLICKED, parent);
+        lv_obj_t *rewrite_btn_label = lv_obj_get_child(rewrite_btn, 0);
+        lv_label_set_text(rewrite_btn_label, "修改");
         return;
     }
 
@@ -126,15 +134,21 @@ static void dropdown_cb(lv_event_t *e) {
     lv_dropdown_get_selected_str(obj, dropdown_selected, sizeof(dropdown_selected));
 }
 
-static void begin_rewrite(lv_obj_t *parent) {
+static void begin_rewrite_before_timer(void) {
+    lv_obj_t *btn_label = lv_obj_get_child(rewrite_btn, 0);
+    lv_label_set_text(btn_label, "等待服务器响应...");
+}
+
+static void begin_rewrite_in_timer(lv_obj_t *parent) {
     lv_obj_scroll_to_y(parent, 0, LV_ANIM_ON);
     lv_obj_add_flag(footer, LV_OBJ_FLAG_HIDDEN);
     lv_label_set_text(title, "正在修改文章...");
+    lv_label_set_text(content, "");
 }
 
-static void rewrite_btn_cb_1(lv_event_t *e) {
-    lv_obj_t *parent = lv_event_get_user_data(e);
-    begin_rewrite(parent);
+static void rewrite_btn_timer_cb_1(lv_timer_t *timer) {
+    lv_obj_t *parent = timer->user_data;
+    begin_rewrite_in_timer(parent);
 
     write_done_cb_ctx_t *ctx = malloc(sizeof(write_done_cb_ctx_t));
 
@@ -142,11 +156,18 @@ static void rewrite_btn_cb_1(lv_event_t *e) {
     ctx->rewrite_btn_cb = rewrite_btn_cb_2;
 
     type_write_to_label(content, res2, writer_done_cb, ctx);
+
+    lv_timer_del(timer);
 }
 
-static void rewrite_btn_cb_2(lv_event_t *e) {
-    lv_obj_t *parent = lv_event_get_user_data(e);
-    begin_rewrite(parent);
+static void rewrite_btn_cb_1(lv_event_t *e) {
+    begin_rewrite_before_timer();
+    lv_timer_create(rewrite_btn_timer_cb_1, 10000, e->user_data);
+}
+
+static void rewrite_btn_timer_cb_2(lv_timer_t *timer) {
+    lv_obj_t *parent = timer->user_data;
+    begin_rewrite_in_timer(parent);
 
     write_done_cb_ctx_t *ctx = malloc(sizeof(write_done_cb_ctx_t));
 
@@ -155,6 +176,13 @@ static void rewrite_btn_cb_2(lv_event_t *e) {
 
     HistoryList *history_list = get_history_list();
     type_write_to_label(content, history_list->list[0].content, writer_done_cb, ctx);
+
+    lv_timer_del(timer);
+}
+
+static void rewrite_btn_cb_2(lv_event_t *e) {
+    begin_rewrite_before_timer();
+    lv_timer_create(rewrite_btn_timer_cb_2, 10000, e->user_data);
 }
 
 static void rewrite_btn_cb_3(lv_event_t *e) {
