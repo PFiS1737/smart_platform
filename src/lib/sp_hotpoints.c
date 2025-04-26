@@ -25,7 +25,7 @@ static void init_btn_cb(lv_event_t *e) {
     //        我估计是单线程的原因，如果是真的进行网络请求，估计也会这样
     lv_label_set_text(init_label, "正在获取热点...");
 
-    sleep(5);
+    sleep(5); // TODO: use lv_timer
 
     lv_obj_del(btn);
 
