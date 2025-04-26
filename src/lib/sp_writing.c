@@ -1,7 +1,4 @@
 #include "sp_writing.h"
-#include "core/lv_event.h"
-#include "core/lv_obj.h"
-#include "misc/lv_area.h"
 
 extern lv_obj_t *tabview;
 

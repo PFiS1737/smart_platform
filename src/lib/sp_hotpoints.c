@@ -1,5 +1,4 @@
 #include "sp_hotpoints.h"
-#include "extra/widgets/tabview/lv_tabview.h"
 
 extern lv_obj_t *tabview;
 
