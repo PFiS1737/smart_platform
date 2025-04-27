@@ -14,8 +14,8 @@ typedef struct
 static void type_writer_cb(lv_timer_t *timer) {
     type_writer_ctx_t *ctx = (type_writer_ctx_t *)timer->user_data;
 
-    // int step = lv_rand(16, 27);
-    int step = lv_rand(400, 800);
+    int step = lv_rand(16, 28);
+    // int step = lv_rand(200, 400);
     ctx->index += step;
     if(ctx->index > ctx->len) {
         ctx->index = ctx->len;
