@@ -1,5 +1,8 @@
 # [smart_platform](https://github.com/PFiS1737/smart_platform)
 
+> 该项目用于计算机设计大赛，我们的参赛编号为 `2025032895`
+> 该信息供评委对照审核
+
 ## Usage
 
 Use as a component of ESP-IDF (v5.1.2).
