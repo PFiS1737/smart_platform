@@ -1,4 +1,4 @@
-# smart_platform
+# [smart_platform](https://github.com/PFiS1737/smart_platform)
 
 ## Usage
 
